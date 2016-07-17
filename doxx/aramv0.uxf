@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="13.3">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>60</y>
+      <w>530</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>$ aram title play
+halign=left</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>20</y>
+      <w>530</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>$ aram title record
+halign=left</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>100</y>
+      <w>530</w>
+      <h>30</h>
+    </coordinates>
+    <panel_attributes>$ aram title export
+halign=left</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>140</y>
+      <w>530</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>$ aram
+--
+'About' and list titles
+halign=left</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>20</x>
+      <y>210</y>
+      <w>530</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>$ aram title
+--
+List options play, record and export
+halign=left</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLNote</id>
+    <coordinates>
+      <x>570</x>
+      <y>20</y>
+      <w>220</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>Minimalistic v0
+No UI
+No editing
+Visual feedback on shell</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
