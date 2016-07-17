@@ -48,6 +48,10 @@ int main(int argc, char** argv)
 			{
 				cout << "Export " << argv[1] << " to wav" << endl;
 			}
+			else
+			{
+				cout << "Valid options are: " << endl;
+			}
 			break;
 
 		case 4:
