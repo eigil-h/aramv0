@@ -16,6 +16,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "service/system.h"
+using namespace aram;
+
 #include <iostream>
 #include <cstring>
 using namespace std;
@@ -24,6 +27,9 @@ void print_about(char*);
 
 int main(int argc, char** argv)
 {
+	//make hidden data directory in the user's home folder if it doesn't exist.
+	system::mkdir(system::home_path() + "/.aramv0");
+
 	switch(argc)
 	{
 		case 1:
