@@ -1,5 +1,5 @@
 /*
-	ARAMv0, the audio recorder and music minimalistic v0
+	ARAMv0, the minimalistic Audio Recorder And Music
 	Copyright (C) 2016 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
