@@ -4,44 +4,50 @@
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>20</x>
-      <y>60</y>
+      <x>10</x>
+      <y>150</y>
       <w>530</w>
-      <h>30</h>
+      <h>60</h>
     </coordinates>
     <panel_attributes>$ aram title play
+--
+playback title
 halign=left</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>20</x>
-      <y>20</y>
+      <x>10</x>
+      <y>10</y>
       <w>530</w>
-      <h>30</h>
+      <h>60</h>
     </coordinates>
-    <panel_attributes>$ aram title record
+    <panel_attributes>$ aram title record track
+--
+Record one named track and add it to title
 halign=left</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>20</x>
-      <y>100</y>
+      <x>10</x>
+      <y>220</y>
       <w>530</w>
-      <h>30</h>
+      <h>60</h>
     </coordinates>
     <panel_attributes>$ aram title export
+--
+Export title to wav
 halign=left</panel_attributes>
     <additional_attributes/>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>20</x>
-      <y>140</y>
+      <x>10</x>
+      <y>290</y>
       <w>530</w>
       <h>60</h>
     </coordinates>
@@ -54,8 +60,8 @@ halign=left</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>20</x>
-      <y>210</y>
+      <x>10</x>
+      <y>360</y>
       <w>530</w>
       <h>60</h>
     </coordinates>
@@ -68,15 +74,29 @@ halign=left</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>570</x>
-      <y>20</y>
+      <x>560</x>
+      <y>10</y>
       <w>220</w>
       <h>100</h>
     </coordinates>
     <panel_attributes>Minimalistic v0
 No UI
-No editing
+No editing apart from overwriting
 Visual feedback on shell</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>10</x>
+      <y>80</y>
+      <w>530</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>$ aram title record
+--
+List tracks
+halign=left</panel_attributes>
     <additional_attributes/>
   </element>
 </diagram>
