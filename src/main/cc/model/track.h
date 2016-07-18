@@ -14,28 +14,29 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
-#include "system.h"
-#include <sys/stat.h>
-#include <cerrno>
-#include <cstring>
-#include <stdexcept>
+#ifndef ARAM_TRACK_H
+#define	ARAM_TRACK_H
+
+#include <string>
+using namespace std;
 
 namespace aram
 {
 
-	const string system::data_path()
+	class track
 	{
-		string home_path = ::getenv("HOME");
-		return home_path + "/.aramv0";
-	}
+	public:
+		track(const string& name);
+		track(const track& orig);
+		virtual ~track();
 
-	void system::mkdir(const string& path)
-	{
-		if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST)
-		{
-			throw runtime_error(::strerror(errno));
-		}
-	}
+	private:
+		string name_;
+	};
+
 }
+
+#endif
+

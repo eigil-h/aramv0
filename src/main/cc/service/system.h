@@ -31,7 +31,7 @@ namespace aram
 	class system
 	{
 	public:
-		static const string home_path();
+		static const string data_path();
 		static void mkdir(const string& path);
 	};
 }

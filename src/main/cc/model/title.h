@@ -14,28 +14,34 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
-#include "system.h"
-#include <sys/stat.h>
-#include <cerrno>
-#include <cstring>
-#include <stdexcept>
+#ifndef ARAM_TITLE_H
+#define	ARAM_TITLE_H
+
+#include "track.h"
+
+#include <vector>
+#include <string>
+using namespace std;
 
 namespace aram
 {
 
-	const string system::data_path()
+	class title
 	{
-		string home_path = ::getenv("HOME");
-		return home_path + "/.aramv0";
-	}
+	public:
+		title(const string& name);
+		title(const title& orig);
+		virtual ~title();
+		
+		void add_track(const string& name);
 
-	void system::mkdir(const string& path)
-	{
-		if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST)
-		{
-			throw runtime_error(::strerror(errno));
-		}
-	}
+	private:
+		string name_;
+		vector<track> tracks_;
+	};
 }
+
+#endif
+

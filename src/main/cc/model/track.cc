@@ -16,26 +16,21 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "system.h"
-#include <sys/stat.h>
-#include <cerrno>
-#include <cstring>
-#include <stdexcept>
+#include "track.h"
 
 namespace aram
 {
 
-	const string system::data_path()
+	track::track(const string& name)
 	{
-		string home_path = ::getenv("HOME");
-		return home_path + "/.aramv0";
+		name_ = name;
 	}
 
-	void system::mkdir(const string& path)
+	track::track(const track& orig)
 	{
-		if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST)
-		{
-			throw runtime_error(::strerror(errno));
-		}
+	}
+
+	track::~track()
+	{
 	}
 }

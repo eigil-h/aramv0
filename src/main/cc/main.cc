@@ -17,6 +17,7 @@
  */
 
 #include "service/system.h"
+#include "model/title.h"
 using namespace aram;
 
 #include <iostream>
@@ -28,7 +29,7 @@ void print_about(char*);
 int main(int argc, char** argv)
 {
 	//make hidden data directory in the user's home folder if it doesn't exist.
-	system::mkdir(system::home_path() + "/.aramv0");
+	system::mkdir(system::data_path());
 
 	switch(argc)
 	{
@@ -63,6 +64,10 @@ int main(int argc, char** argv)
 			if(strcmp("record", argv[2]) == 0)
 			{
 				cout << "About to record " << argv[3] << " for " << argv[1] << endl;
+
+				title title(argv[1]);
+				title.add_track(argv[3]);
+
 				break;
 			}
 		default:
@@ -87,7 +92,7 @@ void print_about(char* program_name)
 	//List of options
 	cout << "Valid options are: " << endl
 					<< endl
-					<< "$ " << program_name<< " <title> record <track>" << endl
+					<< "$ " << program_name << " <title> record <track>" << endl
 					<< "  - Record one named track and add it to title. If the track exists it will be overwritten." << endl
 					<< "    Tip: Use this one to create a new title and record a count-in" << endl
 					<< endl

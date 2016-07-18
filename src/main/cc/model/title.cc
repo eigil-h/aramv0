@@ -14,28 +14,31 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
-#include "system.h"
-#include <sys/stat.h>
-#include <cerrno>
-#include <cstring>
-#include <stdexcept>
-
+#include "title.h"
+#include "../service/system.h"
 namespace aram
 {
 
-	const string system::data_path()
+	title::title(const string& name)
 	{
-		string home_path = ::getenv("HOME");
-		return home_path + "/.aramv0";
+		name_ = name;
+		system::mkdir(system::data_path() + "/" + name);
 	}
 
-	void system::mkdir(const string& path)
+	title::title(const title& orig)
 	{
-		if(::mkdir(path.c_str(), 0700) != 0 && errno != EEXIST)
-		{
-			throw runtime_error(::strerror(errno));
-		}
+	}
+
+	title::~title()
+	{
+	}
+
+	void title::add_track(const string& track_name)
+	{
+		
+		tracks_.push_back(track(track_name));
+		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
 	}
 }
