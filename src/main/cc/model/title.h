@@ -34,8 +34,11 @@ namespace aram
 		title(const string& name);
 		title(const title& orig);
 		virtual ~title();
-		
+
 		void add_track(const string& name);
+		const vector<track>& tracks();
+
+		static vector<string> find_all();
 
 	private:
 		string name_;

@@ -18,6 +18,8 @@
 
 #include "title.h"
 #include "../service/system.h"
+#include <iostream>
+
 namespace aram
 {
 
@@ -25,10 +27,17 @@ namespace aram
 	{
 		name_ = name;
 		system::mkdir(system::data_path() + "/" + name);
+
+		for(string track_name : system::directories(system::data_path() + "/" + name))
+		{
+			track track(track_name);
+			tracks_.push_back(track);
+		}
 	}
 
 	title::title(const title& orig)
 	{
+		name_ = orig.name_;
 	}
 
 	title::~title()
@@ -37,8 +46,22 @@ namespace aram
 
 	void title::add_track(const string& track_name)
 	{
-		
 		tracks_.push_back(track(track_name));
 		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
+	}
+	
+	const vector<track>& title::tracks()
+	{
+		return tracks_;
+	}
+
+	vector<string> title::find_all()
+	{
+		vector<string> titles;
+		for(string title_name : system::directories(system::data_path()))
+		{
+			titles.push_back(title_name);			
+		}
+		return titles;
 	}
 }

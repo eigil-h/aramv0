@@ -38,8 +38,20 @@ int main(int argc, char** argv)
 			break;
 
 		case 2:
-			cout << "You must specify an action for title " << argv[1] << ". Options are record [track], play or export" << endl;
+		{
+			cout << "You should specify an action for title " << argv[1]
+							<< ". Options are record [track], play or export. "
+							<< "Current tracks are:" << endl;
+
+			title title(argv[1]);
+			for(track track : title.tracks())
+			{
+				cout << "'" << track.name() << "' ";
+			}
+			cout << endl;
+
 			break;
+		}
 
 		case 3:
 			if(strcmp("play", argv[2]) == 0)
@@ -48,8 +60,17 @@ int main(int argc, char** argv)
 			}
 			else if(strcmp("record", argv[2]) == 0)
 			{
-				cout << "List tracks for " << argv[1] << endl;
+				cout << "You should specify a track to record for title " << argv[1]
+								<< ". You may either overwrite a current track or make a new one. "
+								<< "Current tracks are:" << endl;
+				title title(argv[1]);
+				for(track track : title.tracks())
+				{
+					cout << "'" << track.name() << "' ";
+				}
+				cout << endl;
 			}
+
 			else if(strcmp("export", argv[2]) == 0)
 			{
 				cout << "Export " << argv[1] << " to wav" << endl;
@@ -113,5 +134,10 @@ void print_about(char* program_name)
 					<< endl;
 
 	//List of titles
-	cout << "list titles" << endl;
+	cout << "Current titles:" << endl;
+	for(string title : title::find_all())
+	{
+		cout << "'" << title << "' ";
+	}
+	cout << endl;
 }

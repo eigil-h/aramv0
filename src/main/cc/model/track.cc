@@ -28,9 +28,15 @@ namespace aram
 
 	track::track(const track& orig)
 	{
+		name_ = orig.name_;
 	}
 
 	track::~track()
 	{
+	}
+	
+	const string& track::name()
+	{
+		return name_;
 	}
 }

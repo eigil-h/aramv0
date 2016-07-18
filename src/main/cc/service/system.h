@@ -19,7 +19,9 @@
 #ifndef ARAM_SYSTEM_H
 #define	ARAM_SYSTEM_H
 
+#include <glob.h>
 #include <string>
+#include <vector>
 using namespace std;
 
 namespace aram
@@ -33,6 +35,7 @@ namespace aram
 	public:
 		static const string data_path();
 		static void mkdir(const string& path);
+		static vector<string> directories(const string& path);
 	};
 }
 

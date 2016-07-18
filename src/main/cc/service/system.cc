@@ -27,7 +27,7 @@ namespace aram
 
 	const string system::data_path()
 	{
-		string home_path = ::getenv("HOME");
+		string home_path = getenv("HOME");
 		return home_path + "/.aramv0";
 	}
 
@@ -37,5 +37,19 @@ namespace aram
 		{
 			throw runtime_error(::strerror(errno));
 		}
+	}
+
+	vector<string> system::directories(const string& path)
+	{
+		glob_t glob_result;
+		glob((path + "/*").c_str(), GLOB_TILDE | GLOB_ONLYDIR, NULL, &glob_result);
+		vector<string> files;
+		for(unsigned int i = 0; i < glob_result.gl_pathc; ++i)
+		{
+			string dir(glob_result.gl_pathv[i]);
+			files.push_back(dir.substr(path.size() + 1));
+		}
+		globfree(&glob_result);
+		return files;
 	}
 }

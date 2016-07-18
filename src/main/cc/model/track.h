@@ -32,6 +32,8 @@ namespace aram
 		track(const track& orig);
 		virtual ~track();
 
+		const string& name();
+
 	private:
 		string name_;
 	};
