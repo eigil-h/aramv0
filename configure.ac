@@ -6,6 +6,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CXX
 
 PKG_CHECK_MODULES([jack2], [jack >= 1.9.10])
+PKG_CHECK_MODULES([sigcpp], [sigc++-2.0 >= 2.2.10])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

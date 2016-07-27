@@ -14,16 +14,18 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "title.h"
 #include "../service/system.h"
+#include "../service/signal.h"
 #include <iostream>
+#include <sigc++-2.0/sigc++/signal.h>
 
 namespace aram
 {
 
-	title::title(const string& name)
+	title::title(const string& name) : cursor_(0L)
 	{
 		name_ = name;
 		system::mkdir(system::data_path() + "/" + name);
@@ -33,6 +35,10 @@ namespace aram
 			track track(track_name);
 			tracks_.push_back(track);
 		}
+
+		signal::start_record.connect(sigc::mem_fun(this, &title::start_record));
+		signal::stop_record.connect(sigc::mem_fun(this, &title::stop_record));
+		signal::frame_ready.connect(sigc::mem_fun(this, &title::increment_cursor));
 	}
 
 	title::title(const title& orig)
@@ -49,7 +55,7 @@ namespace aram
 		tracks_.push_back(track(track_name));
 		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
 	}
-	
+
 	const vector<track>& title::tracks()
 	{
 		return tracks_;
@@ -60,8 +66,29 @@ namespace aram
 		vector<string> titles;
 		for(string title_name : system::directories(system::data_path()))
 		{
-			titles.push_back(title_name);			
+			titles.push_back(title_name);
 		}
 		return titles;
+	}
+
+	void title::start_record(const string& track_name)
+	{
+		//playback previously recorded tracks while recording this new one
+		cout << "start record track " << track_name << " for " << name() << endl;
+	}
+
+	void title::stop_record()
+	{
+		//stop recording and playback
+	}
+
+	void title::increment_cursor(unsigned i)
+	{
+		cursor_ += i;
+	}
+
+	void title::reset_cursor()
+	{
+		cursor_ = 0L;
 	}
 }

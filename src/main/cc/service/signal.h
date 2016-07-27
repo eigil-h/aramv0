@@ -14,43 +14,26 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
-#ifndef ARAM_TITLE_H
-#define	ARAM_TITLE_H
+#ifndef ARAM_SIGNAL_H
+#define	ARAM_SIGNAL_H
 
-#include "track.h"
-
-#include <vector>
-#include <string>
-using namespace std;
+#include <sigc++/sigc++.h>
 
 namespace aram
 {
-
-	class title
+	namespace signal
 	{
-	public:
-		title(const string& name);
-		title(const title& orig);
-		virtual ~title();
+		sigc::signal<void, unsigned> frame_ready;
+		sigc::signal<void> xrun;
+		sigc::signal<void, unsigned> sample_rate;
+		sigc::signal<void> audio_engine_shutdown;
+		sigc::signal<void, const char*> error;
 
-		const string& name();
-		const vector<track>& tracks();
-
-		void add_track(const string& track_name);
-		void start_record(const string& track_name);
-		void stop_record();
-		void increment_cursor(unsigned i);
-		void reset_cursor();
-
-		static vector<string> find_all();
-
-	private:
-		string name_;
-		vector<track> tracks_;
-		long cursor_;
-	};
+		sigc::signal<void, const char*> start_record;
+		sigc::signal<void> stop_record;
+	}
 }
 
 #endif

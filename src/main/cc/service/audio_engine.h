@@ -14,44 +14,30 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
-#ifndef ARAM_TITLE_H
-#define	ARAM_TITLE_H
+#ifndef ARAM_AUDIO_ENGINE_H
+#define	ARAM_AUDIO_ENGINE_H
 
-#include "track.h"
-
-#include <vector>
-#include <string>
-using namespace std;
+#define JACK_CALLBACK_SUCCESS 0;
 
 namespace aram
 {
 
-	class title
+	class audio_engine
 	{
 	public:
-		title(const string& name);
-		title(const title& orig);
-		virtual ~title();
+		static audio_engine& instance();
+		virtual ~audio_engine();
 
-		const string& name();
-		const vector<track>& tracks();
-
-		void add_track(const string& track_name);
-		void start_record(const string& track_name);
-		void stop_record();
-		void increment_cursor(unsigned i);
-		void reset_cursor();
-
-		static vector<string> find_all();
+	protected:
+		audio_engine();
+		audio_engine(const audio_engine&) = delete;
+		audio_engine& operator=(const audio_engine&) = delete;
 
 	private:
-		string name_;
-		vector<track> tracks_;
-		long cursor_;
+		static audio_engine* assemble_new();
 	};
 }
-
 #endif
 
