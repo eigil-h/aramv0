@@ -14,7 +14,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 #include "service/system.h"
 #include "model/title.h"
@@ -22,12 +22,28 @@ using namespace aram;
 
 #include <iostream>
 #include <cstring>
+#include <csignal>
 using namespace std;
 
 void print_about(char*);
 
+static title* currentTitle = nullptr;
+
+
+static void sigint_handler(int sig)
+{
+	if(currentTitle != nullptr) 
+	{
+		currentTitle->stop_record();
+	}
+	exit(sig);
+}
+
+
 int main(int argc, char** argv)
 {
+	signal(SIGINT, sigint_handler); 
+
 	//make hidden data directory in the user's home folder if it doesn't exist.
 	system::mkdir(system::data_path());
 
@@ -88,6 +104,7 @@ int main(int argc, char** argv)
 
 				title title(argv[1]);
 				title.add_track(argv[3]);
+				title.start_record(argv[3]);
 
 				break;
 			}

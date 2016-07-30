@@ -36,9 +36,9 @@ namespace aram
 			tracks_.push_back(track);
 		}
 
-		signal::start_record.connect(sigc::mem_fun(this, &title::start_record));
-		signal::stop_record.connect(sigc::mem_fun(this, &title::stop_record));
-		signal::frame_ready.connect(sigc::mem_fun(this, &title::increment_cursor));
+		signal::instance().start_record.connect(sigc::mem_fun(this, &title::start_record));
+		signal::instance().stop_record.connect(sigc::mem_fun(this, &title::stop_record));
+		signal::instance().frame_ready.connect(sigc::mem_fun(this, &title::increment_cursor));
 	}
 
 	title::title(const title& orig)
@@ -54,6 +54,11 @@ namespace aram
 	{
 		tracks_.push_back(track(track_name));
 		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
+	}
+
+	const string& title::name()
+	{
+		return name_;
 	}
 
 	const vector<track>& title::tracks()

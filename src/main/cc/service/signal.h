@@ -14,7 +14,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+*/
 
 #ifndef ARAM_SIGNAL_H
 #define	ARAM_SIGNAL_H
@@ -23,8 +23,11 @@
 
 namespace aram
 {
-	namespace signal
+	class signal
 	{
+	public:
+		static signal& instance();
+
 		sigc::signal<void, unsigned> frame_ready;
 		sigc::signal<void> xrun;
 		sigc::signal<void, unsigned> sample_rate;
@@ -33,7 +36,14 @@ namespace aram
 
 		sigc::signal<void, const char*> start_record;
 		sigc::signal<void> stop_record;
-	}
+		sigc::signal<void, const char*> start_playback;
+		sigc::signal<void> stop_playback;
+
+	private:
+		signal();
+		signal(const signal&) = delete;
+		signal& operator=(const signal&) = delete;
+	};
 }
 
 #endif
