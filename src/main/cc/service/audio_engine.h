@@ -19,8 +19,6 @@
 #ifndef ARAM_AUDIO_ENGINE_H
 #define	ARAM_AUDIO_ENGINE_H
 
-#define JACK_CALLBACK_SUCCESS 0;
-
 namespace aram
 {
 

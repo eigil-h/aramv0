@@ -17,42 +17,11 @@
  */
 
 #include "audio_engine.h"
-#include "signal.h"
+#include "jack_engine.h"
+
 #include <memory>
 
 using namespace std;
-
-
-/* JACK c-style callbacks
- */
-static int on_frame_ready_jack_fun(uint32_t frame_count, void* ignore)
-{
-	aram::signal::instance().frame_ready(frame_count);
-	return JACK_CALLBACK_SUCCESS;
-}
-
-static int on_xrun_jack_fun(void* ignore)
-{
-	aram::signal::instance().xrun();
-	return JACK_CALLBACK_SUCCESS;
-}
-
-static int on_sample_rate_change_jack_fun(unsigned sample_rate, void* ignore)
-{
-	aram::signal::instance().sample_rate(sample_rate);
-	return JACK_CALLBACK_SUCCESS;
-}
-
-static void on_shutdown_jack_fun(void* ignore)
-{
-	aram::signal::instance().audio_engine_shutdown();
-}
-
-static void on_error_jack_fun(const char* msg)
-{
-	aram::signal::instance().error(msg);
-}
-
 
 namespace aram
 {
@@ -65,7 +34,7 @@ namespace aram
 	audio_engine* audio_engine::assemble_new()
 	{
 		//Here's the opportunity to create various implementations of audio_engine
-		return new audio_engine();		
+		return new jack_engine();		
 	}
 
 	audio_engine::audio_engine()
