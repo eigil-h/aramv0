@@ -22,6 +22,7 @@
 #define JACK_CALLBACK_SUCCESS 0;
 
 #include "audio_engine.h"
+#include <jack/jack.h>
 
 namespace aram
 {
@@ -30,10 +31,32 @@ namespace aram
 	{
 	public:
 		jack_engine();
-		jack_engine(const jack_engine& orig);
 		virtual ~jack_engine();
-	private:
 
+	private:
+		jack_client_t* jack_client_;
+		jack_port_t* capture_left_;
+		jack_port_t* capture_right_;
+		jack_port_t* playback_left_;
+		jack_port_t* playback_right_;
+
+		void on_frame_ready(unsigned frameCount);
+	};
+
+	/*
+	 * Wrapper for jack_get_ports()
+	 */
+	class jack_get_ports
+	{
+		const char** ports_;
+		unsigned ports_size_;
+
+	public:
+		jack_get_ports(jack_client_t* jack_client, unsigned long flags);
+		virtual ~jack_get_ports();
+
+		unsigned ports_size();
+		const char* port_at(unsigned port_index);
 	};
 }
 

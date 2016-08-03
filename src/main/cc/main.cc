@@ -18,11 +18,13 @@
 
 #include "service/system.h"
 #include "model/title.h"
+#include "service/audio_engine.h"
 using namespace aram;
 
 #include <iostream>
 #include <cstring>
 #include <csignal>
+#include <unistd.h>
 using namespace std;
 
 void print_about(char*);
@@ -42,7 +44,8 @@ static void sigint_handler(int sig)
 
 int main(int argc, char** argv)
 {
-	signal(SIGINT, sigint_handler); 
+	signal(SIGINT, sigint_handler);
+	audio_engine::instance();
 
 	//make hidden data directory in the user's home folder if it doesn't exist.
 	system::mkdir(system::data_path());
@@ -114,6 +117,9 @@ int main(int argc, char** argv)
 	}
 
 	cout << endl;
+	
+	::pause();
+
 	return 0;
 }
 
