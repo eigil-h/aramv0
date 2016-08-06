@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 							<< "Current tracks are:" << endl;
 
 			title title(argv[1]);
-			for(track track : title.tracks())
+			for(const track& track : title.tracks())
 			{
 				cout << "'" << track.name() << "' ";
 			}
@@ -83,7 +83,7 @@ int main(int argc, char** argv)
 								<< ". You may either overwrite a current track or make a new one. "
 								<< "Current tracks are:" << endl;
 				title title(argv[1]);
-				for(track track : title.tracks())
+				for(const track& track : title.tracks())
 				{
 					cout << "'" << track.name() << "' ";
 				}

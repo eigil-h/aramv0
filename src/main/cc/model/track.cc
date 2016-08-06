@@ -30,7 +30,7 @@ namespace aram
 	{
 	}
 	
-	const string& track::name()
+	const string& track::name() const
 	{
 		return name_;
 	}

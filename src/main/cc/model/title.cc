@@ -32,8 +32,7 @@ namespace aram
 
 		for(string track_name : system::directories(system::data_path() + "/" + name))
 		{
-			track track(track_name);
-			tracks_.push_back(track);
+			tracks_.emplace_back(track_name);
 		}
 
 		signal::instance().start_record.connect(sigc::mem_fun(this, &title::start_record));
@@ -47,16 +46,16 @@ namespace aram
 
 	void title::add_track(const string& track_name)
 	{
-		tracks_.push_back(track(track_name));
+		tracks_.emplace_back(track_name);
 		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
 	}
 
-	const string& title::name()
+	const string& title::name() const
 	{
 		return name_;
 	}
 
-	const vector<track>& title::tracks()
+	const vector<track>& title::tracks() const
 	{
 		return tracks_;
 	}

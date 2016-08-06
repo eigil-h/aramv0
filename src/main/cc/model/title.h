@@ -34,8 +34,8 @@ namespace aram
 		title(const string& name);
 		virtual ~title();
 
-		const string& name();
-		const vector<track>& tracks();
+		const string& name() const;
+		const vector<track>& tracks() const;
 
 		void add_track(const string& track_name);
 		void start_record(const string& track_name);
