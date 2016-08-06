@@ -26,11 +26,6 @@ namespace aram
 		name_ = name;
 	}
 
-	track::track(const track& orig)
-	{
-		name_ = orig.name_;
-	}
-
 	track::~track()
 	{
 	}

@@ -41,11 +41,6 @@ namespace aram
 		signal::instance().frame_ready.connect(sigc::mem_fun(this, &title::increment_cursor));
 	}
 
-	title::title(const title& orig)
-	{
-		name_ = orig.name_;
-	}
-
 	title::~title()
 	{
 	}

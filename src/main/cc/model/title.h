@@ -32,7 +32,6 @@ namespace aram
 	{
 	public:
 		title(const string& name);
-		title(const title& orig);
 		virtual ~title();
 
 		const string& name();

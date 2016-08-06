@@ -29,7 +29,6 @@ namespace aram
 	{
 	public:
 		track(const string& name);
-		track(const track& orig);
 		virtual ~track();
 
 		const string& name();
