@@ -78,8 +78,6 @@ namespace aram
 
 	void track::swap_and_store_handler() const
 	{
-		cout << "swap_and_store_handler" << endl;
-
 		ofstream left_channel(track_directory_ + "/left", ios::binary);
 		ofstream right_channel(track_directory_ + "/right", ios::binary);
 
@@ -93,29 +91,20 @@ namespace aram
 
 	void track::prepare_playback()
 	{
-		cout << "setting up thread" << endl;
-
 		load_and_read_thread_ = shared_ptr<thread>(new thread([=]
 		{
-			cout << "open streams" << endl;
 			ifstream left_channel(track_directory_ + "/left", ios::binary);
 			ifstream right_channel(track_directory_ + "/right", ios::binary);
-
-			cout << "load buffers and swap" << endl;
 
 			playback_buffer_left_->load_back_buffer_and_swap(left_channel);
 			playback_buffer_right_->load_back_buffer_and_swap(right_channel);
 
 			is_playback_ = true;
 
-			cout << "load_and_read_handler" << endl;
-
 			while(is_playback_)
 			{
 				this_thread::sleep_for(chrono::seconds(1));
 				
-				cout << "have slept for 1 secs" << endl;
-
 				playback_buffer_left_->load_back_buffer(left_channel);
 				playback_buffer_right_->load_back_buffer(right_channel);
 			}

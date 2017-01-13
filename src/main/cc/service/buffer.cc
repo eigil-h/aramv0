@@ -91,10 +91,8 @@ namespace aram
 
 	int load_and_read_buffer::load_back_buffer(istream& istr)
 	{
-		cout << endl << "load_back_buffer" << endl;
 		if(!bbuf_ready)
 		{
-			cout << "not ready" << endl;
 			return 0;
 		}
 		buf_itr_t end_itr;
@@ -105,24 +103,14 @@ namespace aram
 			bbuf_itr = back_buffer()->begin();
 		}
 
-		cout << "initialized" << endl;
-
 		int total_len = 0;
-		cout << "something wrong with istr?" << endl;
 
 		int stream_pos = istr.tellg();
-		cout << "no" << endl;
 		istr.seekg(0, ios::end);
 		int stream_end = istr.tellg();
 		istr.seekg(stream_pos, ios::beg);
 
-		cout << "seek and such" << endl;
-
 		int len = end_itr - bbuf_itr;
-		
-		cout << "len = " << len << endl;
-
-		
 		if(len > (stream_end - stream_pos) / sizeof (sample_t))
 		{
 			len = (stream_end - stream_pos) / sizeof (sample_t);
@@ -133,9 +121,6 @@ namespace aram
 		bbuf_itr += len;
 
 		int fillsize = end_itr - bbuf_itr;
-
-		cout << "fillsize " << fillsize << endl;
- 
 		bbuf_itr = fill_n(bbuf_itr, fillsize, 0.f);
 
 		if(bbuf_itr != end_itr)
