@@ -36,7 +36,7 @@ static void sigint_handler(int sig)
 {
 	if(currentTitle != nullptr) 
 	{
-		currentTitle->stop_record();
+		currentTitle->stop();
 	}
 	exit(sig);
 }
@@ -45,7 +45,6 @@ static void sigint_handler(int sig)
 int main(int argc, char** argv)
 {
 	signal(SIGINT, sigint_handler);
-	audio_engine::instance();
 
 	//make hidden data directory in the user's home folder if it doesn't exist.
 	system::mkdir(system::data_path());
@@ -76,6 +75,11 @@ int main(int argc, char** argv)
 			if(strcmp("play", argv[2]) == 0)
 			{
 				cout << "About to playback " << argv[1] << endl;
+				title title(argv[1]);
+				currentTitle = &title;
+				title.start_playback();
+
+				::pause();
 			}
 			else if(strcmp("record", argv[2]) == 0)
 			{
@@ -106,8 +110,10 @@ int main(int argc, char** argv)
 				cout << "About to record " << argv[3] << " for " << argv[1] << endl;
 
 				title title(argv[1]);
-				title.add_track(argv[3]);
-				title.start_record(argv[3]);
+				currentTitle = &title;
+				title.start_recording(argv[3]);
+
+				::pause();
 
 				break;
 			}

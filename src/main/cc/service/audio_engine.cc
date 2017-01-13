@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ using namespace std;
 
 namespace aram
 {
+
 	audio_engine& audio_engine::instance()
 	{
 		static unique_ptr<audio_engine> audio_engine_singleton(assemble_new());
@@ -34,14 +35,53 @@ namespace aram
 	audio_engine* audio_engine::assemble_new()
 	{
 		//Here's the opportunity to create various implementations of audio_engine
-		return new jack_engine();		
+		return new jack_engine();
 	}
 
 	audio_engine::audio_engine()
+	: running_(false), recording_(false), num_playback_tracks_(0)
 	{
 	}
 
 	audio_engine::~audio_engine()
 	{
+	}
+
+	void audio_engine::register_recording_buffers(
+					shared_ptr<write_and_store_buffer> left,
+					shared_ptr<write_and_store_buffer> right)
+	{
+		recording_left_buffer_ = left;
+		recording_right_buffer_ = right;
+		recording_ = true;
+	}
+
+	void audio_engine::register_playback_buffers(
+					shared_ptr<load_and_read_buffer> left,
+					shared_ptr<load_and_read_buffer> right)
+	{
+		playback_left_buffer_vector_.push_back(left);
+		playback_right_buffer_vector_.push_back(right);
+		num_playback_tracks_++;
+	}
+
+	void audio_engine::unregister_buffers()
+	{
+		recording_ = false;
+		num_playback_tracks_ = 0;
+		playback_left_buffer_vector_.clear();
+		playback_right_buffer_vector_.clear();
+		recording_left_buffer_.reset();
+		recording_right_buffer_.reset();
+	}
+
+	void audio_engine::start()
+	{
+		running_ = true;
+	}
+
+	void audio_engine::stop()
+	{
+		running_ = false;
 	}
 }

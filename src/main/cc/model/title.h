@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -37,18 +37,15 @@ namespace aram
 		const string& name() const;
 		const vector<track>& tracks() const;
 
-		void add_track(const string& track_name);
-		void start_record(const string& track_name);
-		void stop_record();
-		void increment_cursor(unsigned i);
-		void reset_cursor();
+		void start_recording(const string& track_name);
+		void start_playback();
+		void stop();
 
 		static vector<string> find_all();
 
 	private:
 		string name_;
 		vector<track> tracks_;
-		long cursor_;
 	};
 }
 

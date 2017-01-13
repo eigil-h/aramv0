@@ -19,7 +19,6 @@
 #include "buffer.h"
 #include <iostream>
 #include <exception>
-#include <algorithm>
 
 namespace aram
 {
@@ -64,6 +63,7 @@ namespace aram
 	 */
 	load_and_read_buffer::load_and_read_buffer(int siz) : double_buffer(siz)
 	{
+		cout << "buffer of " << siz << " sample_t's (float) constructed" << endl;
 	}
 
 	bool load_and_read_buffer::read_front_buffer(sample_t* to_buf, int len)
@@ -89,10 +89,12 @@ namespace aram
 		return did_swap;
 	}
 
-	int load_and_read_buffer::load_back_buffer(forward_list<istream*>& istr_list)
+	int load_and_read_buffer::load_back_buffer(istream& istr)
 	{
+		cout << endl << "load_back_buffer" << endl;
 		if(!bbuf_ready)
 		{
+			cout << "not ready" << endl;
 			return 0;
 		}
 		buf_itr_t end_itr;
@@ -103,38 +105,37 @@ namespace aram
 			bbuf_itr = back_buffer()->begin();
 		}
 
+		cout << "initialized" << endl;
+
 		int total_len = 0;
+		cout << "something wrong with istr?" << endl;
+
+		int stream_pos = istr.tellg();
+		cout << "no" << endl;
+		istr.seekg(0, ios::end);
+		int stream_end = istr.tellg();
+		istr.seekg(stream_pos, ios::beg);
+
+		cout << "seek and such" << endl;
+
+		int len = end_itr - bbuf_itr;
+		
+		cout << "len = " << len << endl;
+
+		
+		if(len > (stream_end - stream_pos) / sizeof (sample_t))
+		{
+			len = (stream_end - stream_pos) / sizeof (sample_t);
+		}
+		total_len += len;
+
+		istr.read(reinterpret_cast<char*>(&(*bbuf_itr)), len * sizeof (sample_t));
+		bbuf_itr += len;
+
 		int fillsize = end_itr - bbuf_itr;
 
-		while(!istr_list.empty())
-		{
-			istream& istr = *istr_list.front();
-
-			int stream_pos = istr.tellg();
-			istr.seekg(0, ios::end);
-			int stream_end = istr.tellg();
-			istr.seekg(stream_pos, ios::beg);
-
-			int len = end_itr - bbuf_itr;
-			if(len > (stream_end - stream_pos) / sizeof (sample_t))
-			{
-				len = (stream_end - stream_pos) / sizeof (sample_t);
-			}
-			total_len += len;
-
-			istr.read(reinterpret_cast<char*>(&(*bbuf_itr)), len * sizeof (sample_t));
-			bbuf_itr += len;
-
-			fillsize = end_itr - bbuf_itr;
-			if(fillsize == 0)
-			{
-				//the buffer is filled
-				break;
-			}
-			//We're done with this stream
-			istr_list.pop_front();
-		}
-
+		cout << "fillsize " << fillsize << endl;
+ 
 		bbuf_itr = fill_n(bbuf_itr, fillsize, 0.f);
 
 		if(bbuf_itr != end_itr)
@@ -147,7 +148,7 @@ namespace aram
 		return total_len;
 	}
 
-	int load_and_read_buffer::load_back_buffer_and_swap(forward_list<istream*>& istr)
+	int load_and_read_buffer::load_back_buffer_and_swap(istream& istr)
 	{
 		int samples_read = load_back_buffer(istr);
 		swap();

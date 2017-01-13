@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -21,8 +21,11 @@
 
 #include <memory>
 #include <cstring>
+#include <iostream>
 
 using namespace std;
+
+#define nullptr nullptr //?? netbeans anomaly ??
 
 /* JACK c-style callbacks
  */
@@ -77,7 +80,7 @@ namespace aram
 
 		/* Register ports
 		 */
-		capture_left_ = jack_port_register(jack_client_, "aram-capture-left", JACK_DEFAULT_AUDIO_TYPE, 
+		capture_left_ = jack_port_register(jack_client_, "aram-capture-left", JACK_DEFAULT_AUDIO_TYPE,
 						JackPortIsInput, 0L);
 		capture_right_ = jack_port_register(jack_client_, "aram-capture-right", JACK_DEFAULT_AUDIO_TYPE,
 						JackPortIsInput, 0L);
@@ -108,8 +111,10 @@ namespace aram
 			{
 				throw runtime_error("Can't connect ports");
 			}
-		} else {
-			throw runtime_error("Unexpected number of physical capture ports: " + capture_ports.ports_size());			
+		}
+		else
+		{
+			throw runtime_error("Unexpected number of physical capture ports: " + capture_ports.ports_size());
 		}
 
 
@@ -142,14 +147,54 @@ namespace aram
 
 	void jack_engine::on_frame_ready(unsigned frame_count)
 	{
-		float* capture_left   = reinterpret_cast<float*>(jack_port_get_buffer(capture_left_, frame_count));
-		float* capture_right  = reinterpret_cast<float*>(jack_port_get_buffer(capture_right_, frame_count));
-		float* playback_left  = reinterpret_cast<float*>(jack_port_get_buffer(playback_left_, frame_count));
-		float* playback_right = reinterpret_cast<float*>(jack_port_get_buffer(playback_right_, frame_count));
+		sample_t* capture_left = reinterpret_cast<float*>(jack_port_get_buffer(capture_left_, frame_count));
+		sample_t* capture_right = reinterpret_cast<float*>(jack_port_get_buffer(capture_right_, frame_count));
+		sample_t* playback_left = reinterpret_cast<float*>(jack_port_get_buffer(playback_left_, frame_count));
+		sample_t* playback_right = reinterpret_cast<float*>(jack_port_get_buffer(playback_right_, frame_count));
 
-		//unconditionally copy input buffer to output buffer for immediate playback
-		::memcpy(playback_left, capture_left, sizeof (float) * frame_count);
-		::memcpy(playback_right, capture_right, sizeof (float) * frame_count);
+		if(running_)
+		{
+			if(recording_)
+			{
+				if(!recording_left_buffer_->write_front_buffer(capture_left, frame_count))
+				{
+					cout << "abort!" << endl;
+				}
+				if(!recording_right_buffer_->write_front_buffer(capture_right, frame_count))
+				{
+					cout << "abort! TODO - make recording stop in a clean and nice way" << endl;
+				}
+			}
+
+			//mix (future: let something else do the mixing, ie make ports per track)
+			for(unsigned i = 0; i < frame_count; i++)
+			{
+				sample_t sample;
+				sample_t mixed_sample = 0.0f;
+				for(shared_ptr<load_and_read_buffer> l : playback_left_buffer_vector_)
+				{
+					l->read_front_buffer(&sample, 1);
+					mixed_sample += sample;
+				}
+				mixed_sample += *capture_left++;
+				*playback_left++ = mixed_sample / (num_playback_tracks_ + 1);
+
+				mixed_sample = 0.0f;
+				for(shared_ptr<load_and_read_buffer> r : playback_right_buffer_vector_)
+				{
+					r->read_front_buffer(&sample, 1);
+					mixed_sample += sample;
+				}
+				mixed_sample += *capture_right++;
+				*playback_right++ = mixed_sample / (num_playback_tracks_ + 1);
+			}
+		}
+		else
+		{
+			//unconditionally copy input buffer to output buffer for immediate playback
+			::memcpy(playback_left, capture_left, sizeof (float) * frame_count);
+			::memcpy(playback_right, capture_right, sizeof (float) * frame_count);
+		}
 	}
 
 	/* 

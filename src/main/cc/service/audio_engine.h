@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@
 #ifndef ARAM_AUDIO_ENGINE_H
 #define	ARAM_AUDIO_ENGINE_H
 
+#include "buffer.h"
+#include <memory>
+using namespace std;
+
 namespace aram
 {
 
@@ -28,7 +32,22 @@ namespace aram
 		static audio_engine& instance();
 		virtual ~audio_engine();
 
+		void register_recording_buffers(shared_ptr<write_and_store_buffer> left, shared_ptr<write_and_store_buffer> right);
+		void register_playback_buffers(shared_ptr<load_and_read_buffer> left, shared_ptr<load_and_read_buffer> right);
+		void unregister_buffers();
+
+		void start();
+		void stop();
+		
 	protected:
+		bool running_;
+		bool recording_;
+		int num_playback_tracks_;
+		vector<shared_ptr<load_and_read_buffer>> playback_left_buffer_vector_;
+		vector<shared_ptr<load_and_read_buffer>> playback_right_buffer_vector_;
+		shared_ptr<write_and_store_buffer> recording_left_buffer_;
+		shared_ptr<write_and_store_buffer> recording_right_buffer_;
+
 		audio_engine();
 		audio_engine(const audio_engine&) = delete;
 		audio_engine& operator=(const audio_engine&) = delete;
@@ -38,4 +57,3 @@ namespace aram
 	};
 }
 #endif
-

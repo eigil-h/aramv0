@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -19,35 +19,29 @@
 #include "title.h"
 #include "../service/system.h"
 #include "../service/signal.h"
+#include "src/main/cc/service/audio_engine.h"
 #include <iostream>
 #include <sigc++-2.0/sigc++/signal.h>
 
 namespace aram
 {
 
-	title::title(const string& name) : cursor_(0L)
+	title::title(const string& name)
 	{
 		name_ = name;
 		system::mkdir(system::data_path() + "/" + name);
 
 		for(string track_name : system::directories(system::data_path() + "/" + name))
 		{
-			tracks_.emplace_back(track_name);
+			tracks_.emplace_back(track_name, name);
 		}
 
-		signal::instance().start_record.connect(sigc::mem_fun(this, &title::start_record));
-		signal::instance().stop_record.connect(sigc::mem_fun(this, &title::stop_record));
-		signal::instance().frame_ready.connect(sigc::mem_fun(this, &title::increment_cursor));
+		signal::instance().start_record.connect(sigc::mem_fun(this, &title::start_recording));
+		signal::instance().stop_record.connect(sigc::mem_fun(this, &title::stop));
 	}
 
 	title::~title()
 	{
-	}
-
-	void title::add_track(const string& track_name)
-	{
-		tracks_.emplace_back(track_name);
-		system::mkdir(system::data_path() + "/" + name_ + "/" + track_name);
 	}
 
 	const string& title::name() const
@@ -70,24 +64,49 @@ namespace aram
 		return titles;
 	}
 
-	void title::start_record(const string& track_name)
+	void title::start_recording(const string& track_name)
 	{
-		//playback previously recorded tracks while recording this new one
 		cout << "start record track " << track_name << " for " << name() << endl;
+
+		//if it didn't already exist
+		tracks_.emplace_back(track_name, name_);
+
+		for(track& t : tracks_)
+		{
+			if(t.name() == track_name) {
+				t.prepare_recording();
+			} else {
+				t.prepare_playback();
+			}
+		}
+		
+		audio_engine::instance().start();
 	}
 
-	void title::stop_record()
+	void title::start_playback()
 	{
+		cout << "start playback " << name() << endl;
+
+		for(track& t : tracks_)
+		{
+			t.prepare_playback();
+		}
+		
+		cout << "starting audio engine" << endl;
+
+		audio_engine::instance().start();
+	}
+
+	void title::stop()
+	{
+		cout << "stop playback/recording " << name() << endl;
 		//stop recording and playback
-	}
-
-	void title::increment_cursor(unsigned i)
-	{
-		cursor_ += i;
-	}
-
-	void title::reset_cursor()
-	{
-		cursor_ = 0L;
+		audio_engine::instance().stop();
+		this_thread::sleep_for(chrono::milliseconds(300)); //until better solution
+		for(track& t : tracks_)
+		{
+			t.cleanup();
+		}
+		audio_engine::instance().unregister_buffers();
 	}
 }
