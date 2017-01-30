@@ -52,6 +52,7 @@ namespace aram
 		bool is_playback_;
 		shared_ptr<thread> swap_and_store_thread_;
 		shared_ptr<thread> load_and_read_thread_;
+		int sample_rate_;
 	};
 }
 

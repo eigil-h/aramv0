@@ -31,6 +31,8 @@ namespace aram
 	public:
 		static audio_engine& instance();
 		virtual ~audio_engine();
+		
+		virtual unsigned sample_rate() = 0;
 
 		void register_recording_buffers(shared_ptr<write_and_store_buffer> left, shared_ptr<write_and_store_buffer> right);
 		void register_playback_buffers(shared_ptr<load_and_read_buffer> left, shared_ptr<load_and_read_buffer> right);

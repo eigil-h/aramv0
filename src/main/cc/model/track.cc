@@ -51,6 +51,7 @@ namespace aram
 
 	void track::prepare_recording()
 	{
+		sample_rate_ = audio_engine::instance().sample_rate(); //todo not stored anywhere!
 		is_recording_ = true;
 
 		swap_and_store_thread_ = shared_ptr<thread>(new thread([ = ]{

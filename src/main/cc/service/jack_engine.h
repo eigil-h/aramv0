@@ -33,6 +33,8 @@ namespace aram
 		jack_engine();
 		virtual ~jack_engine();
 
+		unsigned sample_rate();
+		
 	private:
 		jack_client_t* jack_client_;
 		jack_port_t* capture_left_;

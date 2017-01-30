@@ -144,6 +144,11 @@ namespace aram
 	jack_engine::~jack_engine()
 	{
 	}
+	
+	unsigned jack_engine::sample_rate()
+	{
+		return jack_get_sample_rate(jack_client_);
+	}
 
 	void jack_engine::on_frame_ready(unsigned frame_count)
 	{
