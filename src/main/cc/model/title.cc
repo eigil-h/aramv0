@@ -17,7 +17,7 @@
  */
 
 #include "title.h"
-#include "helper.h"
+#include "../service/helper.h"
 #include "../service/system.h"
 #include "../service/signal.h"
 #include "src/main/cc/service/audio_engine.h"

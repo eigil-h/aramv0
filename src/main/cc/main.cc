@@ -134,7 +134,7 @@ void print_about(char* program_name)
 	//About
 	cout << endl
 					<< "===  ARAMv0, the minimalistic Audio Recorder And Music ===" << endl
-					<< "Copyright (C) 2016 Eigil Hysvær" << endl
+					<< "Copyright (C) 2016-2017 Eigil Hysvær" << endl
 					<< "This program comes with ABSOLUTELY NO WARRANTY." << endl
 					<< "This is free software, and you are welcome to redistribute it under certain conditions." << endl
 					<< "See LICENSE for details." << endl << endl;

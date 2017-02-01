@@ -17,7 +17,7 @@
  */
 
 #include "track.h"
-#include "helper.h"
+#include "../service/helper.h"
 #include "../service/system.h"
 #include "../service/audio_engine.h"
 #include <iostream>
