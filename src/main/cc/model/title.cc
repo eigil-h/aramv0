@@ -17,10 +17,12 @@
  */
 
 #include "title.h"
+#include "helper.h"
 #include "../service/system.h"
 #include "../service/signal.h"
 #include "src/main/cc/service/audio_engine.h"
 #include <iostream>
+#include <exception>
 #include <sigc++-2.0/sigc++/signal.h>
 
 namespace aram
@@ -30,6 +32,25 @@ namespace aram
 	{
 		name_ = name;
 		system::mkdir(system::data_path() + "/" + name);
+		string info_file = system::data_path() + "/" + name + "/info";
+		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
+		properties prop(info_file);
+		if(prop)
+		{
+			sample_rate_ = prop.get_unsigned_int("sample_rate", engine_sample_rate);
+			if(sample_rate_ != engine_sample_rate)
+			{
+				cout << "WARNING: Audio engine sample rate is " << engine_sample_rate << 
+								", while title sample rate is " << sample_rate_ << endl;
+			}
+		} else
+		{
+			prop.put_unsigned_int("sample_rate", engine_sample_rate);
+			prop.save();
+			sample_rate_ = engine_sample_rate;
+		}
+		
+		cout << "Initial sample rate for " << name << " was " << sample_rate_ << endl;
 
 		for(string track_name : system::directories(system::data_path() + "/" + name))
 		{
@@ -73,13 +94,16 @@ namespace aram
 
 		for(track& t : tracks_)
 		{
-			if(t.name() == track_name) {
+			if(t.name() == track_name)
+			{
 				t.prepare_recording();
-			} else {
+			}
+			else
+			{
 				t.prepare_playback();
 			}
 		}
-		
+
 		audio_engine::instance().start();
 	}
 
@@ -91,7 +115,7 @@ namespace aram
 		{
 			t.prepare_playback();
 		}
-		
+
 		cout << "starting audio engine" << endl;
 
 		audio_engine::instance().start();

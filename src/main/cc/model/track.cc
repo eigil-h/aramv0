@@ -17,6 +17,7 @@
  */
 
 #include "track.h"
+#include "helper.h"
 #include "../service/system.h"
 #include "../service/audio_engine.h"
 #include <iostream>
@@ -38,6 +39,18 @@ namespace aram
 	is_playback_(false)
 	{
 		system::mkdir(track_directory_);
+		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
+
+		properties prop(track_directory_ + "/info");
+		if(prop)
+		{
+			sample_rate_ = prop.get_unsigned_int("sample_rate", engine_sample_rate);
+		}
+		else
+		{
+			prop.put_unsigned_int("sample_rate", engine_sample_rate);
+			prop.save();
+		}
 	}
 
 	track::~track()

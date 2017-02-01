@@ -14,39 +14,33 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
-#ifndef ARAM_TITLE_H
-#define	ARAM_TITLE_H
+#ifndef ARAM_HELPER_H
+#define ARAM_HELPER_H
 
-#include "track.h"
-
-#include <vector>
-#include <string>
+#include <map>
 using namespace std;
 
 namespace aram
 {
-
-	class title
+	class properties
 	{
 	public:
-		title(const string& name);
-		virtual ~title();
+		properties(const string& path);
+		properties(const properties&) = delete;
+		properties& operator=(const properties&) = delete;
+		operator bool() const;
 
-		const string& name() const;
-		const vector<track>& tracks() const;
-
-		void start_recording(const string& track_name);
-		void start_playback();
-		void stop();
-
-		static vector<string> find_all();
+		void load();
+		void save();
+		
+		unsigned get_unsigned_int(const string& key, unsigned default_val);
+		void put_unsigned_int(const string& key, unsigned val);
 
 	private:
-		string name_;
-		vector<track> tracks_;
-		unsigned sample_rate_;
+		string path_;
+		map<string, string> map_;
 	};
 }
 

@@ -26,7 +26,6 @@ using namespace std;
 
 namespace aram
 {
-
 	/**
 	 * Functions interacting with the OS. Not necessarily portable.
 	 */
@@ -36,6 +35,7 @@ namespace aram
 		static const string data_path();
 		static void mkdir(const string& path);
 		static vector<string> directories(const string& path);
+		static bool file_exists(const string& path);
 	};
 }
 

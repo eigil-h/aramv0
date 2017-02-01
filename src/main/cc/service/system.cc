@@ -24,7 +24,6 @@
 
 namespace aram
 {
-
 	const string system::data_path()
 	{
 		string home_path = getenv("HOME");
@@ -51,5 +50,11 @@ namespace aram
 		}
 		globfree(&glob_result);
 		return files;
+	}
+	
+	bool system::file_exists(const string& path)
+	{
+		struct stat buffer;
+		return (stat(path.c_str(), &buffer) == 0);
 	}
 }
