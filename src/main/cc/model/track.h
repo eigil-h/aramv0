@@ -36,6 +36,9 @@ namespace aram
 		virtual ~track();
 
 		const string& name() const;
+		string path_to_left_channel() const;
+		string path_to_right_channel() const;
+		unsigned num_samples() const;
 		void prepare_recording();
 		void swap_and_store_handler() const;
 		void prepare_playback();

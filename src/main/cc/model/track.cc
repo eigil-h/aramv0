@@ -55,11 +55,53 @@ namespace aram
 
 	track::~track()
 	{
+		cleanup();
 	}
 
 	const string& track::name() const
 	{
 		return name_;
+	}
+
+	string track::path_to_left_channel() const
+	{
+		return track_directory_ + "/left";
+	}
+
+	string track::path_to_right_channel() const
+	{
+		return track_directory_ + "/right";
+	}
+
+	unsigned track::num_samples() const
+	{
+		ifstream left_channel(path_to_left_channel(), ios::binary);
+		if(left_channel)
+		{
+			left_channel.seekg(0, ios::end);
+			unsigned stream_end = left_channel.tellg();
+
+			//verify that right channel is same size
+			ifstream right_channel(path_to_right_channel(), ios::binary);
+			if(right_channel)
+			{
+				right_channel.seekg(0, ios::end);
+				if(right_channel.tellg() != stream_end)
+				{
+					throw runtime_error(name_ + " - left and right channel differ in size.");
+				}
+
+				return stream_end / sizeof (sample_t);
+			}
+			else
+			{
+				throw runtime_error(name_ + " - unable to open right channel for read");
+			}
+		}
+		else
+		{
+			throw runtime_error(name_ + " - unable to open left channel for read");
+		}
 	}
 
 	void track::prepare_recording()
@@ -92,8 +134,8 @@ namespace aram
 
 	void track::swap_and_store_handler() const
 	{
-		ofstream left_channel(track_directory_ + "/left", ios::binary);
-		ofstream right_channel(track_directory_ + "/right", ios::binary);
+		ofstream left_channel(path_to_left_channel(), ios::binary);
+		ofstream right_channel(path_to_right_channel(), ios::binary);
 
 		while(is_recording_)
 		{
@@ -105,8 +147,7 @@ namespace aram
 
 	void track::prepare_playback()
 	{
-		load_and_read_thread_ = shared_ptr<thread>(new thread([=]
-		{
+		load_and_read_thread_ = shared_ptr<thread>(new thread([ = ]{
 			ifstream left_channel(track_directory_ + "/left", ios::binary);
 			ifstream right_channel(track_directory_ + "/right", ios::binary);
 
@@ -118,9 +159,9 @@ namespace aram
 			while(is_playback_)
 			{
 				this_thread::sleep_for(chrono::seconds(1));
-				
-				playback_buffer_left_->load_back_buffer(left_channel);
-				playback_buffer_right_->load_back_buffer(right_channel);
+
+								playback_buffer_left_->load_back_buffer(left_channel);
+								playback_buffer_right_->load_back_buffer(right_channel);
 			}
 		}));
 

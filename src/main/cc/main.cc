@@ -93,11 +93,6 @@ int main(int argc, char** argv)
 				}
 				cout << endl;
 			}
-
-			else if(strcmp("export", argv[2]) == 0)
-			{
-				cout << "Export " << argv[1] << " to wav" << endl;
-			}
 			else
 			{
 				print_about(argv[0]);
@@ -114,9 +109,16 @@ int main(int argc, char** argv)
 				title.start_recording(argv[3]);
 
 				::pause();
-
-				break;
 			}
+			else if(strcmp("export", argv[2]) == 0)
+			{
+				title title(argv[1]);
+				title.export_to_wav(argv[3]);
+
+				cout << argv[1] << " exported to " << argv[3] << "/" << argv[1] << ".wav" << endl;
+			}
+			break;
+
 		default:
 			print_about(argv[0]);
 			break;
@@ -152,7 +154,7 @@ void print_about(char* program_name)
 					<< "$ " << program_name << " <title> play" << endl
 					<< "  - Playback title" << endl
 					<< endl
-					<< "$ " << program_name << " <title> export" << endl
+					<< "$ " << program_name << " <title> export <music directory>" << endl
 					<< "  - Export title to wav" << endl
 					<< endl
 					<< "$ " << program_name << " <title>" << endl
