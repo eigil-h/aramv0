@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2017 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ */
 
 #include "service/system.h"
 #include "model/title.h"
@@ -27,148 +27,214 @@ using namespace aram;
 #include <unistd.h>
 using namespace std;
 
-void print_about(char*);
+typedef struct
+{
+	string program_name;
+	string command;
+	string title;
+	string track;
+	string path;
+} args;
+
+static void sigint_handler(int sig);
+static args mk_args(int argc, char* argv[]);
+static void print_usage(const string&);
+static void print_invalid_command();
+static void print_titles();
+static void print_tracks(const string&);
+static void print_license_short();
 
 static title* currentTitle = nullptr;
 
+int main(int argc, char* argv[])
+{
+	signal(SIGINT, sigint_handler);
+	system::mkdir(system::data_path());
+	args args = mk_args(argc, argv);
+
+	if(args.command == "play")
+	{
+		if(!args.title.empty())
+		{
+			cout << "About to playback " << args.title << endl;
+			title title(args.title);
+			currentTitle = &title;
+			title.start_playback();
+			::pause();
+		}
+		else
+		{
+			print_invalid_command();
+		}
+	}
+	else if(args.command == "record")
+	{
+		if(!(args.title.empty() || args.track.empty()))
+		{
+			cout << "About to record " << args.track << " for " << args.title << endl;
+			title title(args.title);
+			currentTitle = &title;
+			title.start_recording(args.track);
+			::pause();
+		}
+		else
+		{
+			print_invalid_command();
+		}
+	}
+	else if(args.command == "export")
+	{
+		if(!(args.title.empty() || args.path.empty()))
+		{
+			cout << "About to export " << args.title << " to " << args.path << endl;
+			title title(args.title);
+			title.export_to_wav(args.path);
+		}
+		else
+		{
+			print_invalid_command();
+		}
+	}
+	else if(args.command == "import")
+	{
+		cout << "import not implemented yet" << endl;
+	}
+	else if(args.command == "list")
+	{
+		if(args.title.empty())
+		{
+			print_titles();
+		}
+		else
+		{
+			print_tracks(args.title);
+		}
+	}
+	else if(args.command == "help")
+	{
+		print_usage(args.program_name);
+	}
+	else if(args.command == "about")
+	{
+		print_license_short();
+	}
+	else
+	{
+		print_invalid_command();
+	}
+
+	return 0;
+}
 
 static void sigint_handler(int sig)
 {
-	if(currentTitle != nullptr) 
+	if(currentTitle != nullptr)
 	{
 		currentTitle->stop();
 	}
 	exit(sig);
 }
 
-
-int main(int argc, char** argv)
+static args mk_args(int argc, char* argv[])
 {
-	signal(SIGINT, sigint_handler);
+	args args;
+	args.program_name = argv[0];
 
-	//make hidden data directory in the user's home folder if it doesn't exist.
-	system::mkdir(system::data_path());
-
-	switch(argc)
+	for(int i = 1; i < argc; i++)
 	{
-		case 1:
-			print_about(argv[0]);
-			break;
-
-		case 2:
+		if(args.command.empty())
 		{
-			cout << "You should specify an action for title " << argv[1]
-							<< ". Options are record [track], play or export. "
-							<< "Current tracks are:" << endl;
-
-			title title(argv[1]);
-			for(const track& track : title.tracks())
+			if(strcmp("-h", argv[i]) == 0 || strcmp("--help", argv[i]) == 0)
 			{
-				cout << "'" << track.name() << "' ";
+				args.command = "help";
 			}
-			cout << endl;
-
-			break;
-		}
-
-		case 3:
-			if(strcmp("play", argv[2]) == 0)
+			else if(strcmp("--about", argv[i]) == 0)
 			{
-				cout << "About to playback " << argv[1] << endl;
-				title title(argv[1]);
-				currentTitle = &title;
-				title.start_playback();
-
-				::pause();
-			}
-			else if(strcmp("record", argv[2]) == 0)
-			{
-				cout << "You should specify a track to record for title " << argv[1]
-								<< ". You may either overwrite a current track or make a new one. "
-								<< "Current tracks are:" << endl;
-				title title(argv[1]);
-				for(const track& track : title.tracks())
-				{
-					cout << "'" << track.name() << "' ";
-				}
-				cout << endl;
+				args.command = "about";
 			}
 			else
 			{
-				print_about(argv[0]);
+				args.command = argv[i];
 			}
-			break;
+		}
 
-		case 4:
-			if(strcmp("record", argv[2]) == 0)
+		if(args.title.empty())
+		{
+			if(strcmp("-T", argv[i]) == 0)
 			{
-				cout << "About to record " << argv[3] << " for " << argv[1] << endl;
-
-				title title(argv[1]);
-				currentTitle = &title;
-				title.start_recording(argv[3]);
-
-				::pause();
+				if(++i < argc)
+				{
+					args.title = argv[i];
+				}
 			}
-			else if(strcmp("export", argv[2]) == 0)
+		}
+
+		if(args.track.empty())
+		{
+			if(strcmp("-t", argv[i]) == 0)
 			{
-				title title(argv[1]);
-				title.export_to_wav(argv[3]);
-
-				cout << argv[1] << " exported to " << argv[3] << "/" << argv[1] << ".wav" << endl;
+				if(++i < argc)
+				{
+					args.track = argv[i];
+				}
 			}
-			break;
-
-		default:
-			print_about(argv[0]);
-			break;
+		}
 	}
 
-	cout << endl;
-	
-	::pause();
+	if(args.command == "export" || args.command == "import")
+	{
+		args.path = argv[argc-1];
+	}
 
-	return 0;
+	return args;
 }
 
-void print_about(char* program_name)
+static void print_usage(const string& program_name)
 {
-	//About
+	//List of options
+	cout << "Usage: " << program_name << " COMMAND <arguments> [path]\n"
+					<< "  for commands play, record, import, export and list\n\n"
+					<< "Available arguments:\n"
+					<< " -T NAME\t\tName of the title. Optional for list.\n"
+					<< " -t NAME\t\tName of the track for record and import.\n\n"
+					<< "Additional usage: " << program_name << " <arguments>\n\n"
+					<< "Available arguments:\n"
+					<< " -h, --help\t\tprint this text.\n"
+					<< "     --about\t\tprint some general information about " << program_name << ".\n"
+					<< endl;
+}
+
+static void print_invalid_command()
+{
+	cout << "Invalid command or missing argument. Try -h or --help for further information" << endl;
+}
+
+static void print_titles()
+{
+	cout << "Current titles:\n";
+	for(string title : title::find_all())
+	{
+		cout << "'" << title << "' ";
+	}
+	cout << endl;
+}
+
+static void print_tracks(const string& title_name)
+{
+	title title(title_name); //todo get the track names w/o constructing a title
+	for(const track& track : title.tracks())
+	{
+		cout << "'" << track.name() << "' ";
+	}
+	cout << endl;
+}
+
+static void print_license_short()
+{
 	cout << endl
 					<< "===  ARAMv0, the minimalistic Audio Recorder And Music ===" << endl
 					<< "Copyright (C) 2016-2017 Eigil Hysvær" << endl
 					<< "This program comes with ABSOLUTELY NO WARRANTY." << endl
 					<< "This is free software, and you are welcome to redistribute it under certain conditions." << endl
 					<< "See LICENSE for details." << endl << endl;
-
-	//List of options
-	cout << "Valid options are: " << endl
-					<< endl
-					<< "$ " << program_name << " <title> record <track>" << endl
-					<< "  - Record one named track and add it to title. If the track exists it will be overwritten." << endl
-					<< "    Tip: Use this one to create a new title and record a count-in" << endl
-					<< endl
-					<< "$ " << program_name << " <title> record" << endl
-					<< "  - List tracks for title" << endl
-					<< endl
-					<< "$ " << program_name << " <title> play" << endl
-					<< "  - Playback title" << endl
-					<< endl
-					<< "$ " << program_name << " <title> export <music directory>" << endl
-					<< "  - Export title to wav" << endl
-					<< endl
-					<< "$ " << program_name << " <title>" << endl
-					<< "  - List actions and tracks for title" << endl
-					<< endl
-					<< "$ " << program_name << "" << endl
-					<< "  - Display this" << endl
-					<< endl;
-
-	//List of titles
-	cout << "Current titles:" << endl;
-	for(string title : title::find_all())
-	{
-		cout << "'" << title << "' ";
-	}
-	cout << endl;
 }

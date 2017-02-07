@@ -142,9 +142,9 @@ namespace aram
 #define BYTES_PER_SAMPLE sizeof(int16_t)
 #define BITS_PER_SAMPLE 8*BYTES_PER_SAMPLE
 
-	void title::export_to_wav(const string& wav_directory_path)
+	void title::export_to_wav(const string& wav_file_path)
 	{
-		ofstream file(wav_directory_path + "/" + name_ + ".wav", ios::binary);
+		ofstream file(wav_file_path, ios::binary);
 		if(file)
 		{
 			file.write("RIFF", 4);
@@ -232,7 +232,7 @@ namespace aram
 		}
 		else
 		{
-			throw runtime_error("Not able to open " + wav_directory_path + "/" + name_ + " for writing");
+			throw runtime_error("Not able to open " + wav_file_path + " for writing");
 		}
 	}
 }
