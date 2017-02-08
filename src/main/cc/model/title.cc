@@ -36,26 +36,6 @@ namespace aram
 	{
 		name_ = name;
 		system::mkdir(system::data_path() + "/" + name);
-		string info_file = system::data_path() + "/" + name + "/info";
-		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
-		properties prop(info_file);
-		if(prop)
-		{
-			sample_rate_ = prop.get_unsigned_int("sample_rate", engine_sample_rate);
-			if(sample_rate_ != engine_sample_rate)
-			{
-				cout << "WARNING: Audio engine sample rate is " << engine_sample_rate <<
-								", while title sample rate is " << sample_rate_ << endl;
-			}
-		}
-		else
-		{
-			prop.put_unsigned_int("sample_rate", engine_sample_rate);
-			prop.save();
-			sample_rate_ = engine_sample_rate;
-		}
-
-		cout << "Initial sample rate for " << name << " was " << sample_rate_ << endl;
 
 		for(string track_name : system::directories(system::data_path() + "/" + name))
 		{
@@ -93,6 +73,7 @@ namespace aram
 	void title::start_recording(const string& track_name)
 	{
 		cout << "start record track " << track_name << " for " << name() << endl;
+		ck_info_file();
 
 		//if it didn't already exist
 		tracks_.emplace_back(track_name, name_);
@@ -115,6 +96,7 @@ namespace aram
 	void title::start_playback()
 	{
 		cout << "start playback " << name() << endl;
+		ck_info_file();
 
 		for(track& t : tracks_)
 		{
@@ -158,8 +140,9 @@ namespace aram
 			file.write((char*)&audio_format, 2);
 			const unsigned short num_channels = 2;
 			file.write((char*)&num_channels, 2);
-			file.write((char*)&sample_rate_, 4);
-			const unsigned byte_rate = sample_rate_ * num_channels * BYTES_PER_SAMPLE;
+			const unsigned s_rate = sample_rate();
+			file.write((char*)&s_rate, 4);
+			const unsigned byte_rate = s_rate * num_channels * BYTES_PER_SAMPLE;
 			file.write((char*)&byte_rate, 4);
 			const unsigned short block_align = num_channels * BYTES_PER_SAMPLE;
 			file.write((char*)&block_align, 2);
@@ -233,6 +216,46 @@ namespace aram
 		else
 		{
 			throw runtime_error("Not able to open " + wav_file_path + " for writing");
+		}
+	}
+
+	void title::ck_info_file() const
+	{
+		string info_file = system::data_path() + "/" + name_ + "/info";
+		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
+		properties prop(info_file);
+		if(prop)
+		{
+			unsigned sample_rate = prop.get_unsigned_int("sample_rate", engine_sample_rate);
+			if(sample_rate != engine_sample_rate)
+			{
+				cout << "WARNING: Audio engine sample rate is " << engine_sample_rate <<
+								", while title " << name_ << " sample rate is " << sample_rate << endl;
+			}
+		}
+		else
+		{
+			prop.put_unsigned_int("sample_rate", engine_sample_rate);
+			prop.save();
+		}
+	}
+	
+	unsigned title::sample_rate() const
+	{
+		string info_file = system::data_path() + "/" + name_ + "/info";
+		properties prop(info_file);
+		if(prop)
+		{
+			unsigned sample_rate = prop.get_unsigned_int("sample_rate", 0);
+			if(sample_rate == 0)
+			{
+				throw runtime_error("sample_rate unknown");
+			}
+			return sample_rate;
+		}
+		else
+		{
+			throw runtime_error("No info file");
 		}
 	}
 }

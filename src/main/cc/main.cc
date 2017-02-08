@@ -211,20 +211,22 @@ static void print_invalid_command()
 
 static void print_titles()
 {
-	cout << "Current titles:\n";
+	cout << "Titles:\n";
 	for(string title : title::find_all())
 	{
-		cout << "'" << title << "' ";
+		cout << "  " << title << "\n";
 	}
 	cout << endl;
 }
 
 static void print_tracks(const string& title_name)
 {
-	title title(title_name); //todo get the track names w/o constructing a title
+	title title(title_name);
+	cout << "Tracks:\n";
+
 	for(const track& track : title.tracks())
 	{
-		cout << "'" << track.name() << "' ";
+		cout << "  " << track.name() << "\n";
 	}
 	cout << endl;
 }

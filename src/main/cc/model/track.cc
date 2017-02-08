@@ -39,18 +39,6 @@ namespace aram
 	is_playback_(false)
 	{
 		system::mkdir(track_directory_);
-		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
-
-		properties prop(track_directory_ + "/info");
-		if(prop)
-		{
-			sample_rate_ = prop.get_unsigned_int("sample_rate", engine_sample_rate);
-		}
-		else
-		{
-			prop.put_unsigned_int("sample_rate", engine_sample_rate);
-			prop.save();
-		}
 	}
 
 	track::~track()
@@ -106,7 +94,7 @@ namespace aram
 
 	void track::prepare_recording()
 	{
-		sample_rate_ = audio_engine::instance().sample_rate(); //todo not stored anywhere!
+		mk_info_file();
 		is_recording_ = true;
 
 		swap_and_store_thread_ = shared_ptr<thread>(new thread([ = ]{
@@ -167,5 +155,34 @@ namespace aram
 
 		audio_engine::instance().register_playback_buffers(playback_buffer_left_,
 						playback_buffer_right_);
+	}
+
+	void track::mk_info_file() const
+	{
+		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
+
+		properties prop(track_directory_ + "/info");
+		prop.put_unsigned_int("sample_rate", engine_sample_rate);
+		prop.save();
+	}
+
+	void track::ck_info_file() const
+	{
+		unsigned engine_sample_rate = audio_engine::instance().sample_rate();
+
+		properties prop(track_directory_ + "/info");
+		if(prop)
+		{
+			unsigned sample_rate = prop.get_unsigned_int("sample_rate", engine_sample_rate);
+			if(sample_rate != engine_sample_rate)
+			{
+				cout << "WARNING: Audio engine sample rate is " << engine_sample_rate <<
+								", while track " << name_ << " sample rate is " << sample_rate << endl;
+			}
+		}
+		else
+		{
+			throw runtime_error("No info file");
+		}
 	}
 }

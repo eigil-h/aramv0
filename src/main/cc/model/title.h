@@ -47,7 +47,9 @@ namespace aram
 	private:
 		string name_;
 		vector<track> tracks_;
-		unsigned sample_rate_;
+		
+		unsigned sample_rate() const;
+		void ck_info_file() const;
 	};
 }
 

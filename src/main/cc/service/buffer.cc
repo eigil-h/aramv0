@@ -63,7 +63,6 @@ namespace aram
 	 */
 	load_and_read_buffer::load_and_read_buffer(int siz) : double_buffer(siz)
 	{
-		cout << "buffer of " << siz << " sample_t's (float) constructed" << endl;
 	}
 
 	bool load_and_read_buffer::read_front_buffer(sample_t* to_buf, int len)
