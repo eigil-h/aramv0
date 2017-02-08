@@ -43,6 +43,7 @@ namespace aram
 		void swap_and_store_handler() const;
 		void prepare_playback();
 		void cleanup();
+		void import_from_wav(const string& wav_file_path, unsigned title_sample_rate);
 
 	private:
 		string name_;

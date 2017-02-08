@@ -97,7 +97,16 @@ int main(int argc, char* argv[])
 	}
 	else if(args.command == "import")
 	{
-		cout << "import not implemented yet" << endl;
+		if(!(args.title.empty() || args.track.empty() || args.path.empty()))
+		{
+			cout << "About to import " << args.path << " to " << args.track << " for " << args.title << endl;
+			title title(args.title);
+			title.import_from_wav(args.path, args.track);
+		}
+		else
+		{
+			print_invalid_command();
+		}
 	}
 	else if(args.command == "list")
 	{

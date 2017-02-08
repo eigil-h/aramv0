@@ -126,6 +126,12 @@ namespace aram
 
 	void title::export_to_wav(const string& wav_file_path)
 	{
+		const unsigned s_rate = sample_rate();
+		if(s_rate == 0)
+		{
+			throw runtime_error("sample_rate unknown, can't export to wav");
+		}
+
 		ofstream file(wav_file_path, ios::binary);
 		if(file)
 		{
@@ -140,7 +146,6 @@ namespace aram
 			file.write((char*)&audio_format, 2);
 			const unsigned short num_channels = 2;
 			file.write((char*)&num_channels, 2);
-			const unsigned s_rate = sample_rate();
 			file.write((char*)&s_rate, 4);
 			const unsigned byte_rate = s_rate * num_channels * BYTES_PER_SAMPLE;
 			file.write((char*)&byte_rate, 4);
@@ -151,7 +156,7 @@ namespace aram
 			file.write("data", 4);
 
 			const unsigned num_samples = max_element(tracks_.begin(), tracks_.end(),
-							[](track const& a, track const& b)
+							[](const track& a, const track& b)
 							{
 								return a.num_samples() < b.num_samples();
 							})->num_samples();
@@ -215,9 +220,16 @@ namespace aram
 		}
 		else
 		{
-			throw runtime_error("Not able to open " + wav_file_path + " for writing");
+			throw runtime_error("Unable to open " + wav_file_path + " for writing");
 		}
 	}
+
+	void title::import_from_wav(const string& wav_file_path, const string& track_name)
+	{
+		track t(track_name, name_);
+		t.import_from_wav(wav_file_path, sample_rate());
+	}
+
 
 	void title::ck_info_file() const
 	{
@@ -246,16 +258,11 @@ namespace aram
 		properties prop(info_file);
 		if(prop)
 		{
-			unsigned sample_rate = prop.get_unsigned_int("sample_rate", 0);
-			if(sample_rate == 0)
-			{
-				throw runtime_error("sample_rate unknown");
-			}
-			return sample_rate;
+			return prop.get_unsigned_int("sample_rate", 0);
 		}
 		else
 		{
-			throw runtime_error("No info file");
+			return 0;
 		}
 	}
 }

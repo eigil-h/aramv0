@@ -84,4 +84,20 @@ namespace aram
 	{
 		map_[key] = to_string(val);
 	}
+	
+	void assert::equals(int expected, int actual, const string& msg)
+	{
+		if(actual != expected)
+		{
+			throw runtime_error(msg + " - Expected: " + to_string(expected) + ", actual: " + to_string(actual));
+		}
+	}
+
+	void assert::equals(const string& expected, const string& actual, const string& msg)
+	{
+		if(actual != expected)
+		{
+			throw runtime_error(msg + " - Expected: " + expected + ", actual: " + actual);
+		}
+	}
 }

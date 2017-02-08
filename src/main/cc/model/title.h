@@ -40,7 +40,8 @@ namespace aram
 		void start_recording(const string& track_name);
 		void start_playback();
 		void stop();
-		void export_to_wav(const string& wav_directory_path);
+		void export_to_wav(const string& wav_file_path);
+		void import_from_wav(const string& wav_file_path, const string& track_name);
 
 		static vector<string> find_all();
 

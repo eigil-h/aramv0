@@ -34,13 +34,20 @@ namespace aram
 
 		void load();
 		void save();
-		
+
 		unsigned get_unsigned_int(const string& key, unsigned default_val);
 		void put_unsigned_int(const string& key, unsigned val);
 
 	private:
 		string path_;
 		map<string, string> map_;
+	};
+	
+	class assert
+	{
+	public:
+		static void equals(int expected, int actual, const string& msg);
+		static void equals(const string& expected, const string& actual, const string& msg);
 	};
 }
 

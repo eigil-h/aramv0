@@ -120,6 +120,88 @@ namespace aram
 		}
 	}
 
+#define BYTES_PER_SAMPLE sizeof(int16_t)
+#define BITS_PER_SAMPLE 8*BYTES_PER_SAMPLE
+
+	void track::import_from_wav(const string& wav_file_path, unsigned title_sample_rate)
+	{
+		ifstream wav(wav_file_path, ios::binary);
+		if(wav)
+		{
+			string buf(4, '\0');
+			wav.read(&buf[0], 4);
+			assert::equals("RIFF", buf, "Missing RIFF header");
+			unsigned file_siz;
+			wav.read((char*)&file_siz, 4);
+			wav.read(&buf[0], 4);
+			assert::equals("WAVE", buf, "Missing WAVE header");
+			wav.read(&buf[0], 4);
+			assert::equals("fmt ", buf, "Missing fmt header");
+			unsigned fmt_length;
+			wav.read((char*)&fmt_length, 4);
+			assert::equals(16, fmt_length, "Unexpected fmt length");
+			short audio_format;
+			wav.read((char*)&audio_format, 2);
+			assert::equals(1, audio_format, "Unexpected audio_format");
+			unsigned short num_channels;
+			wav.read((char*)&num_channels, 2);
+			assert::equals(2, num_channels, "Unexpected number of channels");
+			unsigned s_rate;
+			wav.read((char*)&s_rate, 4);
+			if(s_rate != title_sample_rate && title_sample_rate != 0)
+			{
+				cout << "Warning: sample rate mismatch! Expected " << title_sample_rate << ", got " << s_rate << endl;
+			}
+			unsigned byte_rate;
+			wav.read((char*)&byte_rate, 4);
+			assert::equals(s_rate * num_channels * BYTES_PER_SAMPLE, byte_rate, "Unexpected byte rate");
+			unsigned short block_align;
+			wav.read((char*)&block_align, 2);
+			assert::equals(num_channels * BYTES_PER_SAMPLE, block_align, "Unexpected block align");
+			unsigned short bits_per_sample;
+			wav.read((char*)&bits_per_sample, 2);
+			assert::equals(BITS_PER_SAMPLE, bits_per_sample, "Unexpected bits per sample");
+			wav.read(&buf[0], 4);
+			assert::equals("data", buf, "Missing data header");
+			unsigned chunk_size;
+			wav.read((char*)&chunk_size, 4);
+			assert::equals(0, chunk_size % (num_channels * BYTES_PER_SAMPLE), "Unexpected chunk size modulus");
+			const unsigned num_samples = chunk_size / (num_channels * BYTES_PER_SAMPLE);
+
+			ofstream left_channel(path_to_left_channel(), ios::binary);
+			ofstream right_channel(path_to_right_channel(), ios::binary);
+
+			if(left_channel && right_channel)
+			{
+				int16_t wav_sample;
+				sample_t sample;
+
+				while(!wav.eof())
+				{
+					if(!wav.read((char*)&wav_sample, sizeof (int16_t)).eof())
+					{
+						sample = (sample_t)wav_sample / numeric_limits<int16_t>::max();
+						left_channel.write((char*)&sample, sizeof (sample_t));
+
+						if(!wav.read((char*)&wav_sample, sizeof (int16_t)).eof())
+						{
+							sample = (sample_t)wav_sample / numeric_limits<int16_t>::max();
+							right_channel.write((char*)&sample, sizeof (sample_t));
+						}
+					}
+				}
+			}
+			else
+			{
+				throw runtime_error("Unable to open channel data files for writing");
+			}
+		}
+		else
+		{
+			throw runtime_error("Unable to open " + wav_file_path + " for reading");
+		}
+	}
+
 	void track::swap_and_store_handler() const
 	{
 		ofstream left_channel(path_to_left_channel(), ios::binary);
@@ -136,8 +218,8 @@ namespace aram
 	void track::prepare_playback()
 	{
 		load_and_read_thread_ = shared_ptr<thread>(new thread([ = ]{
-			ifstream left_channel(track_directory_ + "/left", ios::binary);
-			ifstream right_channel(track_directory_ + "/right", ios::binary);
+			ifstream left_channel(path_to_left_channel(), ios::binary);
+			ifstream right_channel(path_to_right_channel(), ios::binary);
 
 			playback_buffer_left_->load_back_buffer_and_swap(left_channel);
 			playback_buffer_right_->load_back_buffer_and_swap(right_channel);
