@@ -19,6 +19,8 @@
 #include "helper.h"
 #include "../service/system.h"
 #include <fstream>
+#include <memory>
+#include <iostream>
 
 namespace aram
 {
@@ -84,7 +86,38 @@ namespace aram
 	{
 		map_[key] = to_string(val);
 	}
-	
+
+	program_args& program_args::instance()
+	{
+		static unique_ptr<program_args> program_args_singleton(new program_args());
+		return *program_args_singleton;
+	}
+
+	void program_args::print() const
+	{
+		cout << "Configuration:\n"
+						<< "\tprogram name: " << program_name << "\n"
+						<< "\tcommand: " << command << "\n";
+		if(!title.empty())
+		{
+			cout << "\ttitle: " << title << "\n";
+		}
+		if(!track.empty())
+		{
+			cout << "\ttrack: " << track << "\n";
+		}
+		if(!path.empty())
+		{
+			cout << "\tpath: " << path << "\n";
+		}
+		if(!audio_engine.empty())
+		{
+			cout << "\taudio_engine: " << audio_engine << "\n";
+		}
+
+		cout << endl;
+	}
+
 	void assert::equals(int expected, int actual, const string& msg)
 	{
 		if(actual != expected)

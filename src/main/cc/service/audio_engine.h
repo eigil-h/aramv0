@@ -54,6 +54,8 @@ namespace aram
 		audio_engine(const audio_engine&) = delete;
 		audio_engine& operator=(const audio_engine&) = delete;
 
+		virtual void on_frame_ready(unsigned frame_count) = 0;
+
 	private:
 		static audio_engine* assemble_new();
 	};

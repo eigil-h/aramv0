@@ -42,6 +42,30 @@ namespace aram
 		string path_;
 		map<string, string> map_;
 	};
+
+	/**
+	 * The main() function will initialize the fields
+	 * Then any other part of the program gets easy access to them.
+	 */
+	class program_args
+	{
+	public:
+		static program_args& instance();
+
+		string program_name; //name of executable
+		string command; //play, record, import, export or list
+		string title; //name of the title
+		string track; //name of the track
+		string path; //for import and export
+		string audio_engine; //jack or silence
+		
+		void print() const;
+
+	private:
+		program_args() = default;
+		program_args(const program_args&) = delete;
+		program_args& operator=(const program_args&) = delete;
+	};
 	
 	class assert
 	{

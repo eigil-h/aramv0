@@ -18,6 +18,8 @@
 
 #include "audio_engine.h"
 #include "jack_engine.h"
+#include "silence_engine.h"
+#include "helper.h"
 
 #include <memory>
 
@@ -34,8 +36,11 @@ namespace aram
 
 	audio_engine* audio_engine::assemble_new()
 	{
-		//Here's the opportunity to create various implementations of audio_engine
-		return new jack_engine();
+		if(program_args::instance().audio_engine == "jack")
+			return new jack_engine();
+		else if(program_args::instance().audio_engine == "silence")
+			return new silence_engine();
+		else throw runtime_error("No such audio engine");
 	}
 
 	audio_engine::audio_engine()

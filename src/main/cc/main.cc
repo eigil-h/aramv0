@@ -19,6 +19,7 @@
 #include "service/system.h"
 #include "model/title.h"
 #include "service/audio_engine.h"
+#include "service/helper.h"
 using namespace aram;
 
 #include <iostream>
@@ -27,17 +28,8 @@ using namespace aram;
 #include <unistd.h>
 using namespace std;
 
-typedef struct
-{
-	string program_name;
-	string command;
-	string title;
-	string track;
-	string path;
-} args;
-
 static void sigint_handler(int sig);
-static args mk_args(int argc, char* argv[]);
+static program_args& mk_args(int argc, char* argv[]);
 static void print_usage(const string&);
 static void print_invalid_command();
 static void print_titles();
@@ -50,7 +42,9 @@ int main(int argc, char* argv[])
 {
 	signal(SIGINT, sigint_handler);
 	system::mkdir(system::data_path());
-	args args = mk_args(argc, argv);
+	const program_args& args = mk_args(argc, argv);
+	
+	args.print();
 
 	if(args.command == "play")
 	{
@@ -144,9 +138,9 @@ static void sigint_handler(int sig)
 	exit(sig);
 }
 
-static args mk_args(int argc, char* argv[])
+static program_args& mk_args(int argc, char* argv[])
 {
-	args args;
+	program_args& args = program_args::instance();
 	args.program_name = argv[0];
 
 	for(int i = 1; i < argc; i++)
@@ -188,11 +182,24 @@ static args mk_args(int argc, char* argv[])
 				}
 			}
 		}
+		
+		if(args.audio_engine.empty())
+		{
+			if(strcmp("-ae", argv[i]) == 0)
+			{
+				if(++i < argc)
+				{
+					args.audio_engine = argv[i];
+				}
+			}
+		}
 	}
 
 	if(args.command == "export" || args.command == "import")
 	{
 		args.path = argv[argc-1];
+	} else if((args.command == "play" || args.command == "record") && args.audio_engine.empty()) {
+		args.audio_engine = "jack";
 	}
 
 	return args;
@@ -201,12 +208,16 @@ static args mk_args(int argc, char* argv[])
 static void print_usage(const string& program_name)
 {
 	//List of options
-	cout << "Usage: " << program_name << " COMMAND <arguments> [path]\n"
+	cout << "Usage: " << program_name << " COMMAND <arguments> [options] [path]\n"
 					<< "  for commands play, record, import, export and list\n\n"
 					<< "Available arguments:\n"
 					<< " -T NAME\t\tName of the title. Optional for list.\n"
 					<< " -t NAME\t\tName of the track for record and import.\n\n"
-					<< "Additional usage: " << program_name << " <arguments>\n\n"
+					<< "Available options:\n"
+					<< " -ae NAME\t\tThe audio engine for play and record.\n"
+					<< "\t\t\t\tjack (default)\n"
+					<< "\t\t\t\tsilence (intended for development only)\n\n"
+					<< "Alternative usage: " << program_name << " <arguments>\n\n"
 					<< "Available arguments:\n"
 					<< " -h, --help\t\tprint this text.\n"
 					<< "     --about\t\tprint some general information about " << program_name << ".\n"
