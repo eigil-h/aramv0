@@ -19,6 +19,7 @@
 #include "silence_engine.h"
 #include "signal.h"
 #include <iostream>
+#include <memory>
 
 aram::silence_engine::silence_engine() :
 				mainturbo_thread(&silence_engine::mainturbo, this)
@@ -32,21 +33,35 @@ aram::silence_engine::silence_engine() :
 
 aram::silence_engine::~silence_engine()
 {
+	mainturbo_thread.detach();
 	cout << "Silence Audio Engine destructed" << endl;
 }
 
 unsigned aram::silence_engine::sample_rate() 
 {
-	return 48000;
+	return 10;
 }
 
 void aram::silence_engine::mainturbo() 
 {
-	while(running_)
+	while(true)
 	{
-		signal::instance().frame_ready(1);
-		this_thread::sleep_for(chrono::milliseconds(50));
+		auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000);
+		signal::instance().frame_ready(10);
+		this_thread::sleep_until(until);
 	}
 }
 
-void aram::silence_engine::on_frame_ready(unsigned frame_count) { }
+void aram::silence_engine::on_frame_ready(unsigned frame_count) 
+{ 
+	unique_ptr<sample_t[]> capture_left(new sample_t[frame_count]);
+	unique_ptr < sample_t[] > capture_right(new sample_t[frame_count]);
+	unique_ptr < sample_t[] > playback_left(new sample_t[frame_count]);
+	unique_ptr < sample_t[] > playback_right(new sample_t[frame_count]);
+
+	audio_engine::on_frame_ready(frame_count,
+					&capture_left[0],
+					&capture_right[0],
+					&playback_left[0],
+					&playback_right[0]);
+}

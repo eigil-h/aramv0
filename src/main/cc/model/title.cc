@@ -90,6 +90,8 @@ namespace aram
 			}
 		}
 
+		cout << "starting audio engine" << endl;
+
 		audio_engine::instance().start();
 	}
 

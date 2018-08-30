@@ -43,7 +43,11 @@ namespace aram
 		void on_frame_ready(unsigned frame_count);
 	};
 
-	//need a thread to trigger 'on frame ready' 
+
+	class Foo
+	{
+		
+	};
 }
 
 #endif

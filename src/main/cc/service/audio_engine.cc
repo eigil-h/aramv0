@@ -22,6 +22,8 @@
 #include "helper.h"
 
 #include <memory>
+#include <iostream>
+#include <cstring>
 
 using namespace std;
 
@@ -88,5 +90,56 @@ namespace aram
 	void audio_engine::stop()
 	{
 		running_ = false;
+	}
+
+	void audio_engine::on_frame_ready(unsigned frame_count,
+					sample_t* capture_left,
+					sample_t* capture_right,
+					sample_t* playback_left,
+					sample_t* playback_right)
+	{
+		if(running_)
+		{
+			if(recording_)
+			{
+				if(!recording_left_buffer_->write_front_buffer(capture_left, frame_count))
+				{
+					cout << "abort!" << endl;
+				}
+				if(!recording_right_buffer_->write_front_buffer(capture_right, frame_count))
+				{
+					cout << "abort! TODO - make recording stop in a clean and nice way" << endl;
+				}
+			}
+
+			//mix (future: let something else do the mixing, ie make ports per track)
+			for(unsigned i = 0; i < frame_count; i++)
+			{
+				sample_t sample;
+				sample_t mixed_sample = 0.0f;
+				for(shared_ptr<load_and_read_buffer> l : playback_left_buffer_vector_)
+				{
+					l->read_front_buffer(&sample, 1);
+					mixed_sample += sample;
+				}
+				mixed_sample += *capture_left++;
+				*playback_left++ = mixed_sample / (num_playback_tracks_ + 1);
+
+				mixed_sample = 0.0f;
+				for(shared_ptr<load_and_read_buffer> r : playback_right_buffer_vector_)
+				{
+					r->read_front_buffer(&sample, 1);
+					mixed_sample += sample;
+				}
+				mixed_sample += *capture_right++;
+				*playback_right++ = mixed_sample / (num_playback_tracks_ + 1);
+			}
+		}
+		else
+		{
+			//unconditionally copy input buffer to output buffer for immediate playback
+			::memcpy(playback_left, capture_left, sizeof(float) * frame_count);
+			::memcpy(playback_right, capture_right, sizeof(float) * frame_count);
+		}
 	}
 }
