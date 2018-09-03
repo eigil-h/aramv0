@@ -1,6 +1,6 @@
 /*
 	ARAMv0, the minimalistic Audio Recorder And Music
-	Copyright (C) 2016 Eigil Hysvær
+	Copyright (C) 2016-2018 Eigil Hysvær
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by
@@ -20,6 +20,10 @@
 #define	ARAM_SIGNAL_H
 
 #include <sigc++/sigc++.h>
+#include <map>
+#include <string>
+
+using namespace std;
 
 namespace aram
 {
@@ -38,11 +42,25 @@ namespace aram
 		sigc::signal<void> stop_record;
 		sigc::signal<void, const char*> start_playback;
 		sigc::signal<void> stop_playback;
+		
+		void print_stats();
 
 	private:
 		signal();
 		signal(const signal&) = delete;
 		signal& operator=(const signal&) = delete;
+
+		map<string, int> stats;
+
+		void on_frame_ready(unsigned frame_count);
+		void on_xrun();
+		void on_sample_rate(unsigned new_sample_rate);
+		void on_audio_engine_shutdown();
+		void on_error(const char* msg);
+		void on_start_record(const char* name);
+		void on_stop_record();
+		void on_start_playback(const char* name);
+		void on_stop_playback();
 	};
 }
 

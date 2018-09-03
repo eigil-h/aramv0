@@ -20,6 +20,7 @@
 #include "model/title.h"
 #include "service/audio_engine.h"
 #include "service/helper.h"
+#include "service/signal.h"
 using namespace aram;
 
 #include <iostream>
@@ -40,7 +41,7 @@ static title* currentTitle = nullptr;
 
 int main(int argc, char* argv[])
 {
-	signal(SIGINT, sigint_handler);
+	::signal(SIGINT, sigint_handler);
 	system::mkdir(system::data_path());
 	const program_args& args = mk_args(argc, argv);
 	
@@ -54,6 +55,7 @@ int main(int argc, char* argv[])
 			title title(args.title);
 			currentTitle = &title;
 			title.start_playback();
+			cout << "Hit ^C to exit" << endl;
 			::pause();
 		}
 		else
@@ -69,6 +71,7 @@ int main(int argc, char* argv[])
 			title title(args.title);
 			currentTitle = &title;
 			title.start_recording(args.track);
+			cout << "Hit ^C to exit" << endl;
 			::pause();
 		}
 		else
@@ -131,10 +134,15 @@ int main(int argc, char* argv[])
 
 static void sigint_handler(int sig)
 {
+	cout << "\nGot exit signal. Shutting down stuff -which may, or may not, take awhile " << endl;
+
 	if(currentTitle != nullptr)
 	{
 		currentTitle->stop();
 	}
+
+	aram::signal::instance().print_stats();
+
 	exit(sig);
 }
 

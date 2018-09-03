@@ -42,12 +42,6 @@ namespace aram
 		void mainturbo();
 		void on_frame_ready(unsigned frame_count);
 	};
-
-
-	class Foo
-	{
-		
-	};
 }
 
 #endif
